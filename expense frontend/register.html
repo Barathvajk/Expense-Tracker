@@ -23,11 +23,32 @@
 
 <script>
 
+// Frontend password validation
+function validatePassword(password){
+    const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    return regex.test(password);
+}
+
 async function register(){
 
-const name = document.getElementById("name").value
-const email = document.getElementById("email").value
-const password = document.getElementById("password").value
+const name = document.getElementById("name").value.trim();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value;
+
+
+// Check empty fields
+if(!name || !email || !password){
+    alert("Please fill all fields");
+    return;
+}
+
+// Frontend password rule
+if(!validatePassword(password)){
+    alert("Password must contain:\n- 8+ characters\n- uppercase letter\n- lowercase letter\n- number\n- special character");
+    return;
+}
 
 try{
 
@@ -41,13 +62,21 @@ body:JSON.stringify({name,email,password})
 
 const data = await res.json()
 
-alert("Registered successfully")
+// Check if server returned error
+if(!res.ok){
+    alert(data.message || "Registration failed");
+    return;
+}
+
+alert("Registered successfully");
 
 window.location.href="login.html"
 
 }catch(err){
-console.log(err)
-alert("Registration failed")
+
+console.log(err);
+alert("Server error");
+
 }
 
 }
