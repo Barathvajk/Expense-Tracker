@@ -1,13 +1,34 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const expenseSchema = new mongoose.Schema({
-    amount: { type: Number, required: true },
-    category: { type: String, required: true },
-    note: { type: String, required: true },
-    date: { type: String, required: true }
-});
+const expenseSchema = new mongoose.Schema(
+{
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
 
-// Use existing model if already compiled
-const Expense = mongoose.models.Expense || mongoose.model('Expense', expenseSchema);
+  amount: {
+    type: Number,
+    required: true
+  },
 
-module.exports = Expense;
+  category: {
+    type: String,
+    required: true
+  },
+
+  description: {
+    type: String
+  },
+
+  date: {
+    type: String,
+    required: true
+  }
+
+},
+{ timestamps: true }
+);
+
+module.exports = mongoose.model("Expense", expenseSchema);

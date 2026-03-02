@@ -1,78 +1,87 @@
-const Expense = require("../models/Expense"); // Your Mongoose model
+const Expense = require("../models/Expense");
 
-// GET all expenses
-const getExpenses = async (req, res) => {
-    try {
-        const expenses = await Expense.find().sort({ date: -1 });
-        res.status(200).json(expenses);
-    } catch (error) {
-        console.error("Fetch Error:", error);
-        res.status(500).json({ message: "Error fetching expenses" });
-    }
+// CREATE
+exports.createExpense = async (req, res) => {
+  try {
+
+    const { amount, category, description, date } = req.body;
+
+    const expense = await Expense.create({
+      user: req.user._id,
+      amount,
+      category,
+      description,
+      date
+    });
+
+    res.status(201).json(expense);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-// POST add a new expense
-const addExpense = async (req, res) => {
-    const { amount, category, note, date } = req.body;
 
-    if (!amount || !category || !note || !date) {
-        return res.status(400).json({ message: "All fields are required" });
-    }
+// GET ALL
+exports.getExpenses = async (req, res) => {
+  try {
 
-    try {
-        const newExpense = new Expense({ amount, category, note, date });
-        const savedExpense = await newExpense.save();
-        res.status(201).json(savedExpense);
-    } catch (error) {
-        console.error("Add Error:", error);
-        res.status(500).json({ message: "Error adding expense" });
-    }
+    const expenses = await Expense.find({ user: req.user._id });
+
+    res.json(expenses);
+
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching expenses" });
+  }
 };
 
-// PUT update an expense
-const updateExpense = async (req, res) => {
-    const { id } = req.params;
-    const { amount, category, note, date } = req.body;
 
-    try {
-        const updatedExpense = await Expense.findByIdAndUpdate(
-            id,
-            { amount, category, note, date },
-            { new: true } // return updated document
-        );
+// UPDATE
+exports.updateExpense = async (req, res) => {
+  try {
 
-        if (!updatedExpense) {
-            return res.status(404).json({ message: "Expense not found" });
-        }
+    const expense = await Expense.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
 
-        res.json(updatedExpense);
-    } catch (error) {
-        console.error("Update Error:", error);
-        res.status(500).json({ message: "Error updating expense" });
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
     }
+
+    expense.amount = req.body.amount ?? expense.amount;
+    expense.category = req.body.category ?? expense.category;
+    expense.description = req.body.description ?? expense.description;
+    expense.date = req.body.date ?? expense.date;
+
+    const updatedExpense = await expense.save();
+
+    res.json(updatedExpense);
+
+  } catch (error) {
+    res.status(500).json({ message: "Error updating expense" });
+  }
 };
 
-// DELETE an expense
-const deleteExpense = async (req, res) => {
-    const { id } = req.params;
 
-    try {
-        const deletedExpense = await Expense.findByIdAndDelete(id);
+// DELETE
+exports.deleteExpense = async (req, res) => {
+  try {
 
-        if (!deletedExpense) {
-            return res.status(404).json({ message: "Expense not found" });
-        }
+    const expense = await Expense.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
 
-        res.json({ message: "Expense deleted successfully" });
-    } catch (error) {
-        console.error("Delete Error:", error);
-        res.status(500).json({ message: "Error deleting expense" });
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
     }
-};
 
-module.exports = {
-    getExpenses,
-    addExpense,
-    updateExpense,
-    deleteExpense
+    await expense.deleteOne();
+
+    res.json({ message: "Expense deleted successfully" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting expense" });
+  }
 };

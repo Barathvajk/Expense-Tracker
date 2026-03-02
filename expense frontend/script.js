@@ -3,69 +3,98 @@ let expenses = [];
 
 const API_URL = "http://localhost:3000/api/expenses";
 
-// Add or update expense
-async function addExpenses(amount, category, note, date) {
-    console.log("Sending to backend:", { amount, category, note, date });
+const token = localStorage.getItem("token");
 
-    if (amount <= 0 || category === "" || note === "" || date === "") {
-        alert("Please fill all required fields correctly");
+// AUTH CHECK
+if (!token) {
+    alert("Please login first");
+    window.location.href = "login.html";
+}
+
+const authHeader = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+};
+
+
+// ADD OR UPDATE EXPENSE
+async function addExpenses(amount, category, description, date) {
+
+    if (amount <= 0 || category === "" || description === "" || date === "") {
+        alert("Please fill all fields");
         return;
     }
 
-    const expense = { amount: Number(amount), category, note, date };
+    const expense = {
+        amount: Number(amount),
+        category,
+        description,
+        date
+    };
 
     try {
+
         if (editingId) {
-            // Update expense
+
             const response = await fetch(`${API_URL}/${editingId}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: authHeader,
                 body: JSON.stringify(expense)
             });
 
-            if (!response.ok) {
-                const text = await response.text();
-                console.error("Backend error:", text);
-                return;
-            }
+            await response.json();
 
-            console.log("Expense updated:", await response.json());
             editingId = null;
             document.getElementById("addBtn").textContent = "Add Expense";
+
         } else {
-            // Add new expense
+
             const response = await fetch(API_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: authHeader,
                 body: JSON.stringify(expense)
             });
 
-            if (!response.ok) {
-                const text = await response.text();
-                console.error("Backend error:", text);
-                return;
-            }
-
-            console.log("Expense added:", await response.json());
+            await response.json();
         }
 
-        // Refresh list
+        clearInputs();
         fetchExpenses();
 
-        // Clear inputs
-        document.getElementById("amount").value = "";
-        document.getElementById("category").value = "";
-        document.getElementById("note").value = "";
-        document.getElementById("date").value = "";
-
     } catch (error) {
-        console.error("Error adding expense:", error);
+        console.error("Error:", error);
     }
 }
 
-// Show expenses on UI
+
+// FETCH EXPENSES
+async function fetchExpenses() {
+
+    try {
+
+        const response = await fetch(API_URL, {
+            headers: authHeader
+        });
+
+        const data = await response.json();
+
+        expenses = data;
+
+        showExpenses();
+        calculateTotal();
+
+    } catch (error) {
+        console.error("Error fetching expenses:", error);
+    }
+
+}
+
+
+// SHOW EXPENSES
 function showExpenses(expensesToShow = expenses) {
+
     const list = document.getElementById("expensesList");
+
     list.innerHTML = "";
 
     if (expensesToShow.length === 0) {
@@ -74,21 +103,25 @@ function showExpenses(expensesToShow = expenses) {
     }
 
     expensesToShow.forEach(exp => {
+
         const item = document.createElement("div");
         item.className = "expense-item";
 
         const text = document.createElement("span");
-        text.textContent = `${exp.amount} | ${exp.category} | ${exp.note} | ${exp.date}`;
+        text.textContent =
+            `${exp.amount} | ${exp.category} | ${exp.description} | ${exp.date}`;
 
         const actions = document.createElement("div");
         actions.className = "expense-actions";
 
         const editBtn = document.createElement("button");
         editBtn.textContent = "Edit";
+        editBtn.className = "edit-btn";
         editBtn.onclick = () => startEdit(exp);
 
         const delBtn = document.createElement("button");
         delBtn.textContent = "Delete";
+        delBtn.className = "delete-btn";
         delBtn.onclick = () => deleteExpense(exp._id);
 
         actions.appendChild(editBtn);
@@ -98,84 +131,128 @@ function showExpenses(expensesToShow = expenses) {
         item.appendChild(actions);
 
         list.appendChild(item);
+
     });
+
 }
 
-// Fetch expenses from backend
-async function fetchExpenses() {
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        expenses = data;
-        showExpenses();
-        calculateTotal();
-    } catch (error) {
-        console.error("Error fetching expenses:", error);
-    }
-}
 
-// Delete expense
+// DELETE EXPENSE
 async function deleteExpense(id) {
+
     try {
-        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-        if (!response.ok) {
-            console.error("Backend error:", await response.text());
-            return;
-        }
-        console.log("Expense deleted:", await response.json());
+
+        await fetch(`${API_URL}/${id}`, {
+            method: "DELETE",
+            headers: authHeader
+        });
+
         fetchExpenses();
+
     } catch (error) {
         console.error("Error deleting expense:", error);
     }
+
 }
 
-// Edit expense
+
+// START EDIT
 function startEdit(expense) {
+
     document.getElementById("amount").value = expense.amount;
     document.getElementById("category").value = expense.category;
-    document.getElementById("note").value = expense.note;
+    document.getElementById("note").value = expense.description;
     document.getElementById("date").value = expense.date;
 
-    editingId = expense._id; // MongoDB uses _id
+    editingId = expense._id;
+
     document.getElementById("addBtn").textContent = "Update Expense";
+
 }
 
-// Filter and search
+
+// CALCULATE TOTAL
+function calculateTotal(expensesToCalculate = expenses) {
+
+    const total = expensesToCalculate.reduce(
+        (sum, exp) => sum + Number(exp.amount),
+        0
+    );
+
+    document.getElementById("total").textContent = "Total: ₹" + total;
+
+}
+
+
+// CLEAR INPUTS
+function clearInputs() {
+
+    document.getElementById("amount").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("note").value = "";
+    document.getElementById("date").value = "";
+
+}
+
+
+// ADD BUTTON EVENT
+document.getElementById("addBtn").addEventListener("click", () => {
+
+    const amount = document.getElementById("amount").value;
+    const category = document.getElementById("category").value;
+    const description = document.getElementById("note").value;
+    const date = document.getElementById("date").value;
+
+    addExpenses(amount, category, description, date);
+
+});
+
 function filterExpenses() {
+
     let filteredExpenses = [...expenses];
 
     const selectedCategory = document.getElementById("filterCategory").value;
-    const searchText = document.getElementById("searchInput").value.toLowerCase().trim();
+    const searchText = document.getElementById("searchInput").value.toLowerCase();
 
+    // Filter by category
     if (selectedCategory !== "all") {
-        filteredExpenses = filteredExpenses.filter(exp => exp.category === selectedCategory);
+
+        filteredExpenses = filteredExpenses.filter(
+            exp => exp.category === selectedCategory
+        );
+
     }
 
+    // Search by description (notes)
     if (searchText !== "") {
-        filteredExpenses = filteredExpenses.filter(exp => exp.note.toLowerCase().includes(searchText));
+
+        filteredExpenses = filteredExpenses.filter(
+            exp => exp.description && exp.description.toLowerCase().includes(searchText)
+        );
+
     }
 
     showExpenses(filteredExpenses);
     calculateTotal(filteredExpenses);
 }
 
-// Calculate total amount
-function calculateTotal(expensesToCalculate = expenses) {
-    const total = expensesToCalculate.reduce((sum, exp) => sum + Number(exp.amount), 0);
-    document.getElementById("total").textContent = "Total: ₹" + total;
-}
 
-// Event listeners
-document.getElementById("addBtn").addEventListener("click", () => {
-    const amount = Number(document.getElementById("amount").value);
-    const category = document.getElementById("category").value;
-    const note = document.getElementById("note").value;
-    const date = document.getElementById("date").value;
-    addExpenses(amount, category, note, date);
-});
-
+// PAGE LOAD
 window.onload = function () {
+
     fetchExpenses();
-    document.getElementById("filterCategory").addEventListener("change", filterExpenses);
-    document.getElementById("searchInput").addEventListener("input", filterExpenses);
+
+    document
+        .getElementById("filterCategory")
+        .addEventListener("change", filterExpenses);
+
+    document
+        .getElementById("searchInput")
+        .addEventListener("input", filterExpenses);
+
 };
+
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
