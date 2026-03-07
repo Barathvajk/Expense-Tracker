@@ -26,15 +26,51 @@ exports.createExpense = async (req, res) => {
 exports.getExpenses = async (req, res) => {
   try {
 
-    const expenses = await Expense.find({ user: req.user._id });
+    const { month, page = 1, limit = 10 } = req.query;
 
-    res.json(expenses);
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    let filter = { user: req.user._id };
+
+    // Month filter
+    if (month) {
+
+      const startDate = new Date(month + "-01");
+      const endDate = new Date(startDate);
+
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      filter.createdAt = {
+        $gte: startDate,
+        $lt: endDate
+      };
+
+    }
+
+    const expenses = await Expense.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber);
+
+    const totalExpenses = await Expense.countDocuments(filter);
+
+    res.json({
+      total: totalExpenses,
+      page: pageNumber,
+      pages: Math.ceil(totalExpenses / limitNumber),
+      expenses
+    });
 
   } catch (error) {
+
+    console.error(error);
     res.status(500).json({ message: "Error fetching expenses" });
+
   }
 };
-
 
 // UPDATE
 exports.updateExpense = async (req, res) => {
@@ -85,3 +121,74 @@ exports.deleteExpense = async (req, res) => {
     res.status(500).json({ message: "Error deleting expense" });
   }
 };
+
+// EXPENSE SUMMARY (Category-wise total)
+
+exports.getExpenseSummary = async (req, res) => {
+  try {
+
+    const summary = await Expense.aggregate([
+      {
+        $match: { user: req.user._id }
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalAmount: { $sum: "$amount" }
+        }
+      }
+    ]);
+
+    const formattedSummary = {};
+
+    summary.forEach(item => {
+      formattedSummary[item._id] = item.totalAmount;
+    });
+
+    res.json(formattedSummary);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating summary" });
+  }
+};
+
+// MONTHLY SPENDING ANALYTICS
+
+exports.getMonthlySpending = async (req, res) => {
+  try {
+
+    const expenses = await Expense.aggregate([
+      {
+        $match: { user: req.user._id }
+      },
+      {
+        $addFields: {
+          dateObj: { $toDate: "$date" }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$dateObj" },
+            month: { $month: "$dateObj" }
+          },
+          total: { $sum: "$amount" }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      }
+    ])
+
+    const formatted = expenses.map(e => ({
+      month: `${e._id.year}-${String(e._id.month).padStart(2,"0")}`,
+      total: e.total
+    }))
+
+    res.json(formatted)
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" })
+  }
+}

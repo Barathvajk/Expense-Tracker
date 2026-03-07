@@ -7,12 +7,15 @@ const {
   getExpenses,
   updateExpense,
   deleteExpense,
+  getExpenseSummary,
+  getMonthlySpending
 } = require("../controllers/expenseController");
 
-// Apply JWT protection to all expense routes
 router.use(protect);
 
-// CRUD Routes
+router.get("/summary", getExpenseSummary);
+router.get("/monthly", getMonthlySpending);
+
 router.post("/", createExpense);
 router.get("/", getExpenses);
 router.put("/:id", updateExpense);
