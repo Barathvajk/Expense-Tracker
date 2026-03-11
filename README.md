@@ -1,163 +1,141 @@
-# 💰 Expense Management System
+# 💰 Personal Expense Tracker
 
-A production-grade personal expense tracker built with **HTML/CSS/JS + Node.js + Express + MongoDB + JWT**.
+A full-stack expense tracking web application built with Node.js, Express, MongoDB, and vanilla JavaScript. Track your spending, set monthly budgets, and visualize your expenses with interactive charts.
+
+🔗 **Live Demo**: [https://personal-finance-tracker-a07d.onrender.com](https://personal-finance-tracker-a07d.onrender.com)
+
+---
+
+## ✨ Features
+
+- **Authentication** — Secure register/login with JWT tokens
+- **Expense Management** — Add, edit, and delete expenses
+- **16 Categories** — Food & Dining, Transport, Shopping, and more
+- **Budget Tracking** — Set monthly budgets with visual progress bar
+- **Charts & Analytics** — Doughnut chart by category, monthly trend bar chart
+- **Filters & Search** — Filter by category, month, or keyword
+- **CSV Export** — Download your expenses as a CSV file
+- **Pagination** — Clean paginated expense list
+- **Responsive Design** — Works on desktop and mobile
+
+---
+
+## 🛠 Tech Stack
+
+**Frontend**
+- HTML, CSS, JavaScript (Vanilla)
+- Chart.js
+
+**Backend**
+- Node.js + Express.js
+- MongoDB + Mongoose
+- JSON Web Tokens (JWT)
+- bcryptjs
+- Joi validation
+- Helmet, CORS, Rate Limiting
+
+**Deployment**
+- Render (Backend + Frontend)
+- MongoDB Atlas (Database)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js v18+
+- MongoDB (local or Atlas)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Barathvajk/Expense-Tracker.git
+   cd Expense-Tracker
+   ```
+
+2. **Install dependencies**
+   ```bash
+   cd backend
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` with your values:
+   ```env
+   NODE_ENV=development
+   PORT=3000
+   MONGO_URI=mongodb://127.0.0.1:27017/expensesDB
+   JWT_SECRET=your_strong_secret_key_here
+   JWT_EXPIRES_IN=7d
+   ```
+
+4. **Start the server**
+   ```bash
+   node server.js
+   ```
+
+5. **Open in browser**
+   ```
+   http://localhost:3000
+   ```
 
 ---
 
 ## 📁 Project Structure
 
 ```
-expense-management-system/
-│
+Expense-Tracker/
 ├── backend/
-│   ├── config/
-│   │   ├── db.js               ← MongoDB connection
-│   │   └── constants.js        ← Shared constants (categories, limits)
-│   │
-│   ├── controllers/
-│   │   ├── auth.controller.js  ← Thin: calls service, sends response
-│   │   └── expense.controller.js
-│   │
-│   ├── middleware/
-│   │   ├── auth.middleware.js  ← JWT protect middleware
-│   │   ├── error.middleware.js ← Global error handler
-│   │   └── validate.js         ← Joi validation middleware
-│   │
-│   ├── models/
-│   │   ├── User.js             ← User schema (bcrypt, budget)
-│   │   └── Expense.js          ← Expense schema (same keys as original)
-│   │
-│   ├── routes/
-│   │   ├── auth.routes.js
-│   │   └── expense.routes.js
-│   │
-│   ├── services/
-│   │   ├── auth.service.js     ← All auth business logic
-│   │   └── expense.service.js  ← All expense business logic
-│   │
-│   ├── utils/
-│   │   ├── ApiError.js         ← Custom error class
-│   │   ├── ApiResponse.js      ← Consistent { success, message, data }
-│   │   └── generateToken.js    ← JWT token generator
-│   │
-│   ├── validators/
-│   │   ├── auth.validator.js   ← Joi schemas for auth
-│   │   └── expense.validator.js← Joi schemas for expenses
-│   │
-│   ├── .env.example
-│   ├── .gitignore
-│   ├── package.json
-│   └── server.js               ← Entry point
-│
+│   ├── config/         # DB connection, constants
+│   ├── controllers/    # Route controllers
+│   ├── middleware/     # Auth, error handling, validation
+│   ├── models/         # Mongoose models (User, Expense)
+│   ├── routes/         # API routes
+│   ├── services/       # Business logic
+│   ├── utils/          # Helpers (ApiError, ApiResponse, token)
+│   ├── validators/     # Joi validators
+│   └── server.js       # Entry point
 └── frontend/
-    ├── css/
-    │   ├── auth.css            ← Login/Register styles
-    │   └── style.css           ← Dashboard styles
-    │
-    ├── js/
-    │   ├── api.js              ← Central fetch helper (all API calls)
-    │   ├── auth.js             ← Login/Register logic
-    │   └── script.js           ← Dashboard logic
-    │
-    └── pages/
-        ├── login.html
-        ├── register.html
-        └── index.html          ← Main dashboard
+    ├── css/            # Stylesheets
+    ├── js/             # api.js, auth.js, script.js
+    └── pages/          # HTML pages
 ```
 
 ---
 
-## 🚀 Getting Started
-
-### 1. Install dependencies
-```bash
-cd backend
-npm install
-```
-
-### 2. Setup environment
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-```
-PORT=3000
-MONGO_URI=mongodb://localhost:27017/expense-tracker
-JWT_SECRET=your_super_secret_key_here
-JWT_EXPIRES_IN=7d
-NODE_ENV=development
-```
-
-### 3. Run the server
-```bash
-# Development (auto-restart)
-npm run dev
-
-# Production
-npm start
-```
-
-### 4. Open in browser
-```
-http://localhost:3000/pages/login.html
-```
-
----
-
-## 🔐 API Endpoints
+## 🔒 API Endpoints
 
 ### Auth
-| Method | Endpoint              | Auth | Description        |
-|--------|-----------------------|------|--------------------|
-| POST   | /api/auth/register    | ❌   | Register user      |
-| POST   | /api/auth/login       | ❌   | Login user         |
-| GET    | /api/auth/profile     | ✅   | Get profile        |
-| PUT    | /api/auth/budget      | ✅   | Update budget      |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login user |
+| GET | `/api/auth/profile` | Get user profile |
+| PUT | `/api/auth/budget` | Update monthly budget |
 
 ### Expenses
-| Method | Endpoint                    | Auth | Description         |
-|--------|-----------------------------|------|---------------------|
-| GET    | /api/expenses               | ✅   | Get all expenses    |
-| POST   | /api/expenses               | ✅   | Create expense      |
-| PUT    | /api/expenses/:id           | ✅   | Update expense      |
-| DELETE | /api/expenses/:id           | ✅   | Delete expense      |
-| GET    | /api/expenses/summary       | ✅   | Category totals     |
-| GET    | /api/expenses/monthly       | ✅   | Monthly breakdown   |
-| GET    | /api/expenses/export        | ✅   | Download CSV        |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/expenses` | Get all expenses |
+| POST | `/api/expenses` | Create expense |
+| PUT | `/api/expenses/:id` | Update expense |
+| DELETE | `/api/expenses/:id` | Delete expense |
+| GET | `/api/expenses/monthly` | Monthly spending data |
+| GET | `/api/expenses/export` | Export CSV |
 
 ---
 
-## ✅ Pro Features Added
+## 👨‍💻 Author
 
-- **Layered Architecture**: Routes → Controllers → Services → Models
-- **Joi Validation**: Input validated before hitting controllers
-- **Global Error Handler**: All errors handled in one place
-- **Custom ApiError**: Consistent error throwing across services
-- **Consistent Responses**: `{ success, message, data }` on every endpoint
-- **Helmet**: HTTP security headers
-- **Rate Limiting**: 100 req/15min globally, 20 req/15min on auth routes
-- **Morgan**: HTTP request logging in development
-- **Centralized API helper** (`api.js`): All frontend fetch calls in one file
-- **Token expiry handling**: Auto-redirect to login on 401
-- **Budget saved to DB**: Persists across sessions
-- **No key changes**: All MongoDB field names preserved exactly
+**Barath Vajk**
+- GitHub: [@Barathvajk](https://github.com/Barathvajk)
 
 ---
 
-## 📦 Dependencies
+## 📄 License
 
-```json
-{
-  "bcryptjs":           "password hashing",
-  "cors":               "cross-origin requests",
-  "dotenv":             "environment variables",
-  "express":            "web framework",
-  "express-rate-limit": "brute-force protection",
-  "helmet":             "security headers",
-  "joi":                "input validation",
-  "jsonwebtoken":       "JWT auth",
-  "mongoose":           "MongoDB ODM",
-  "morgan":             "request logging"
-}
-```
+This project is open source and available under the [MIT License](LICENSE).
