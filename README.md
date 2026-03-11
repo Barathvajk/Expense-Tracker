@@ -1,4 +1,4 @@
-# 💰 Expense Management System — Pro Edition
+# 💰 Expense Management System
 
 A production-grade personal expense tracker built with **HTML/CSS/JS + Node.js + Express + MongoDB + JWT**.
 
