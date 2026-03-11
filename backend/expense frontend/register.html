@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Register</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="auth-container">
+
+<h2>Register</h2>
+
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="register()">Register</button>
+
+<p>Already have account? <a href="login.html">Login</a></p>
+
+</div>
+
+<script>
+
+// Frontend password validation
+function validatePassword(password){
+    const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    return regex.test(password);
+}
+
+async function register(){
+
+const name = document.getElementById("name").value.trim();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value;
+
+
+// Check empty fields
+if(!name || !email || !password){
+    alert("Please fill all fields");
+    return;
+}
+
+// Frontend password rule
+if(!validatePassword(password)){
+    alert("Password must contain:\n- 8+ characters\n- uppercase letter\n- lowercase letter\n- number\n- special character");
+    return;
+}
+
+try{
+
+const res = await fetch("http://localhost:3000/api/auth/register",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({name,email,password})
+})
+
+const data = await res.json()
+
+// Check if server returned error
+if(!res.ok){
+    alert(data.message || "Registration failed");
+    return;
+}
+
+alert("Registered successfully");
+
+window.location.href="login.html"
+
+}catch(err){
+
+console.log(err);
+alert("Server error");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
