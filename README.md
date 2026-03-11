@@ -131,7 +131,7 @@ Expense-Tracker/
 
 ## 👨‍💻 Author
 
-**Barath Vajk**
+**BarathvajK**
 - GitHub: [@Barathvajk](https://github.com/Barathvajk)
 
 ---
