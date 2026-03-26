@@ -3,42 +3,68 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up – Expense Tracker</title>
+  <title>Sign Up – Selavu Track</title>
   <link rel="stylesheet" href="../css/auth.css"/>
 </head>
 <body>
-  <div class="auth-card">
-    <div class="auth-logo">💰</div>
-    <h2>Create Account</h2>
-    <p class="auth-sub">Start tracking your expenses today</p>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-    <div id="errorMsg"   class="error-msg hidden"></div>
-    <div id="successMsg" class="success-msg hidden"></div>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <span class="auth-logo">💰</span>
+      <p class="auth-brand">Selavu Track</p>
+      <h2>Create Account</h2>
+      <p class="auth-sub">Start tracking your expenses today</p>
 
-    <div class="form-group">
-      <label>Full Name</label>
-      <input id="name" type="text" placeholder="John Doe" autocomplete="name"/>
-    </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
-    </div>
-    <div class="form-group">
-      <label>Password <span class="hint">(min 6 characters)</span></label>
-      <div class="input-wrap">
-        <input id="password" type="password" placeholder="••••••••" autocomplete="new-password"/>
-        <span class="toggle-pw" onclick="togglePassword()">👁</span>
+      <div id="errorMsg"   class="error-msg hidden"></div>
+      <div id="successMsg" class="success-msg hidden"></div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="name" type="text" placeholder="John Doe" autocomplete="name"/>
       </div>
-    </div>
-    <div class="form-group">
-      <label>Confirm Password</label>
-      <input id="confirmPassword" type="password" placeholder="••••••••"/>
-    </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Password <span class="hint">(min 8 characters)</span></label>
+        <div class="input-wrap">
+          <input id="password" type="password" placeholder="••••••••" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+          <span class="toggle-pw" onclick="togglePassword()">👁</span>
+        </div>
+        <div class="pw-strength">
+          <div class="pw-bar" id="bar1"></div>
+          <div class="pw-bar" id="bar2"></div>
+          <div class="pw-bar" id="bar3"></div>
+          <div class="pw-bar" id="bar4"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input id="confirmPassword" type="password" placeholder="••••••••"/>
+      </div>
 
-    <button id="registerBtn" onclick="register()">Create Account</button>
-    <p class="auth-switch">Already have an account? <a href="login.html">Sign In</a></p>
+      <button class="btn-primary" id="registerBtn" onclick="register()">Create Account →</button>
+      <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+    </div>
   </div>
 
   <script src="../js/auth.js"></script>
+  <script>
+    function checkStrength(val) {
+      const bars = [1,2,3,4].map(i => document.getElementById('bar' + i));
+      bars.forEach(b => { b.className = 'pw-bar'; });
+      if (!val) return;
+      let score = 0;
+      if (val.length >= 8)  score++;
+      if (val.length >= 12) score++;
+      if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const cls = score <= 1 ? 'active-weak' : score === 2 ? 'active-medium' : 'active-strong';
+      for (let i = 0; i < score; i++) bars[i].classList.add(cls);
+    }
+  </script>
 </body>
 </html>

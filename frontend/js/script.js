@@ -181,8 +181,8 @@ function showExpenses(data) {
         <span class="cat-badge">${exp.category}</span>
         <span class="expense-amount">₹${Number(exp.amount).toLocaleString("en-IN")}</span>
         <div class="expense-actions">
-          <button class="edit-btn"   onclick='startEdit(${JSON.stringify(exp)})'>Edit</button>
-          <button class="delete-btn" onclick="deleteExpense('${exp._id}')">Delete</button>
+          <button class="btn-edit"   onclick='startEdit(${JSON.stringify(exp)})'>Edit</button>
+          <button class="btn-delete" onclick="deleteExpense('${exp._id}')">Delete</button>
         </div>
       </div>`;
   }).join("");

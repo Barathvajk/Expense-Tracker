@@ -3,32 +3,38 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login – Expense Tracker</title>
+  <title>Login – Selavu Track</title>
   <link rel="stylesheet" href="../css/auth.css"/>
 </head>
 <body>
-  <div class="auth-card">
-    <div class="auth-logo">💰</div>
-    <h2>Welcome Back</h2>
-    <p class="auth-sub">Sign in to your account</p>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-    <div id="errorMsg"   class="error-msg hidden"></div>
-    <div id="successMsg" class="success-msg hidden"></div>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <span class="auth-logo">💰</span>
+      <p class="auth-brand">Selavu Track</p>
+      <h2>Welcome Back</h2>
+      <p class="auth-sub">Sign in to continue tracking your expenses</p>
 
-    <div class="form-group">
-      <label>Email</label>
-      <input id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <div class="input-wrap">
-        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
-        <span class="toggle-pw" onclick="togglePassword()">👁</span>
+      <div id="errorMsg"   class="error-msg hidden"></div>
+      <div id="successMsg" class="success-msg hidden"></div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
       </div>
-    </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+          <span class="toggle-pw" onclick="togglePassword()">👁</span>
+        </div>
+      </div>
 
-    <button id="loginBtn" onclick="login()">Sign In</button>
-    <p class="auth-switch">Don't have an account? <a href="register.html">Sign Up</a></p>
+      <button class="btn-primary" id="loginBtn" onclick="login()">Sign In →</button>
+      <p class="auth-switch">Don't have an account? <a href="register.html">Create one</a></p>
+    </div>
   </div>
 
   <script src="../js/auth.js"></script>
